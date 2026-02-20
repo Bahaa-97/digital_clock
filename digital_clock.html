@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ساعة رقمية متطورة - وضع المكتب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-color: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin: 0;
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            width: 600px;
+            max-width: 95%;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10;
+        }
+
+        /* وضع ساعة المكتب الأنيق */
+        .desk-clock-mode {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: none !important;
+            background: #000 !important; /* خلفية سوداء تماماً للفخامة */
+        }
+
+        .desk-clock-mode .hide-on-desk {
+            display: none !important;
+        }
+
+        .desk-clock-mode .clock-digits {
+            transform: scale(1.5);
+        }
+
+        .digital-font {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            color: white;
+            text-shadow: 0 0 20px var(--accent-glow);
+            transition: all 0.5s ease;
+        }
+
+        .accent-text { color: var(--accent-color); }
+        .accent-bg { background-color: var(--accent-color); }
+
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-btn.active {
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .glow-circle {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--accent-glow);
+            filter: blur(120px);
+            border-radius: 50%;
+            z-index: -1;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-glow 6s infinite ease-in-out;
+        }
+
+        .hidden { display: none; }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--accent-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.875rem;
+        }
+        #notification.show { transform: translateX(-50%) translateY(0); }
+
+        /* زر الخروج من وضع المكتب */
+        #exitDeskMode {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .desk-clock-mode #exitDeskMode {
+            opacity: 0.3;
+        }
+        .desk-clock-mode #exitDeskMode:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notification">تم تفعيل وضع ساعة المكتب الأنيقة</div>
+
+    <div class="glow-circle"></div>
+
+    <div id="mainContainer" class="glass-panel">
+        <!-- شريط الإعدادات -->
+        <div class="flex justify-between items-center mb-10 hide-on-desk">
+            <div class="flex space-x-4 space-x-reverse">
+                <button onclick="switchTab('clock')" id="clockTab" class="tab-btn active pb-1 font-bold text-sm">الساعة</button>
+                <button onclick="switchTab('stopwatch')" id="stopwatchTab" class="tab-btn pb-1 font-bold text-sm text-gray-500">ساعة الإيقاف</button>
+            </div>
+            
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="toggleFormat()" id="formatBtn" class="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full text-[10px] tracking-wider transition-colors">نظام 24 ساعة</button>
+                <button onclick="toggleDeskMode()" class="bg-blue-500/20 hover:bg-blue-500/40 p-2 rounded-full text-blue-400 transition-all" title="وضع المكتب">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- واجهة الساعة -->
+        <div id="clockView" class="text-center">
+            <h2 id="greeting" class="text-lg font-light mb-4 text-gray-400 hide-on-desk">مرحباً</h2>
+            
+            <div class="clock-digits flex justify-center items-center space-x-2 md:space-x-6 space-x-reverse mb-8">
+                <div class="flex flex-col items-center">
+                    <span id="hours" class="digital-font text-6xl md:text-8xl font-bold">00</span>
+                    <span class="text-[10px] uppercase mt-3 text-gray-500 tracking-[0.2em] hide-on-desk">ساعة</span>
+                </div>
+                <div class="digital-font text-5xl opacity-30 mb-8">:</div>
+                <div class="flex flex-col items-center">
+                    <span id="minutes" class="digital-font text-6xl md:text-8xl font-bold">00</span>
+                    <span class="text-[10px] uppercase mt-3 text-gray-500 tracking-[0.2em] hide-on-desk">دقيقة</span>
+                </div>
+                <div class="digital-font text-5xl opacity-30 mb-8">:</div>
+                <div class="flex flex-col items-center">
+                    <span id="seconds" class="digital-font text-6xl md:text-8xl font-bold accent-text">00</span>
+                    <span class="text-[10px] uppercase mt-3 text-gray-500 tracking-[0.2em] hide-on-desk">ثانية</span>
+                </div>
+                <div id="ampmContainer" class="hidden flex flex-col items-center ml-2">
+                    <span id="ampm" class="text-sm font-bold bg-white/5 border border-white/10 px-2 py-1 rounded">--</span>
+                </div>
+            </div>
+
+            <div id="fullDate" class="text-gray-400 text-sm tracking-[0.3em] border-t border-white/5 pt-8 uppercase">
+                جاري التحميل...
+            </div>
+        </div>
+
+        <!-- واجهة ساعة الإيقاف -->
+        <div id="stopwatchView" class="hidden py-10 text-center">
+            <div id="swDisplay" class="digital-font text-6xl md:text-8xl font-bold mb-12 text-center">00:00:00.<small class="text-3xl opacity-40">00</small></div>
+            
+            <div class="flex justify-center space-x-6 space-x-reverse">
+                <button id="swStartBtn" onclick="toggleStopwatch()" class="accent-bg hover:opacity-90 text-white px-10 py-4 rounded-full font-bold transition-all shadow-lg shadow-blue-500/20">بدء</button>
+                <button onclick="resetStopwatch()" class="bg-white/5 hover:bg-white/10 text-white px-10 py-4 rounded-full font-bold transition-all border border-white/10">تصفير</button>
+            </div>
+        </div>
+
+        <!-- مغير الألوان -->
+        <div id="themeSelector" class="mt-12 flex justify-center space-x-4 space-x-reverse opacity-20 hover:opacity-100 transition-opacity hide-on-desk">
+            <button onclick="setTheme('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent hover:ring-white transition-all"></button>
+            <button onclick="setTheme('#a855f7')" class="w-5 h-5 rounded-full bg-purple-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent hover:ring-white transition-all"></button>
+            <button onclick="setTheme('#10b981')" class="w-5 h-5 rounded-full bg-emerald-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent hover:ring-white transition-all"></button>
+            <button onclick="setTheme('#f43f5e')" class="w-5 h-5 rounded-full bg-rose-500 ring-2 ring-offset-2 ring-offset-slate-900 ring-transparent hover:ring-white transition-all"></button>
+        </div>
+    </div>
+
+    <!-- زر الخروج المخفي -->
+    <button id="exitDeskMode" onclick="toggleDeskMode()" class="bg-white/10 hover:bg-white/20 p-4 rounded-full text-white backdrop-blur-md border border-white/10">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+
+    <script>
+        let is24Hour = true;
+        let activeTab = 'clock';
+        let isDeskMode = false;
+        
+        // ساعة الإيقاف
+        let swStartTime;
+        let swElapsedTime = 0;
+        let swInterval;
+        let swRunning = false;
+
+        function showNotification(msg) {
+            const notif = document.getElementById('notification');
+            notif.textContent = msg;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+
+        // --- وضع ساعة المكتب ---
+        function toggleDeskMode() {
+            const container = document.getElementById('mainContainer');
+            isDeskMode = !isDeskMode;
+            
+            if (isDeskMode) {
+                container.classList.add('desk-clock-mode');
+                showNotification("تم تفعيل وضع المكتب (اضغط X للخروج)");
+                // محاولة طلب ملء الشاشة الفعلي مع معالجة الخطأ
+                try {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(() => {});
+                    }
+                } catch(e) {}
+            } else {
+                container.classList.remove('desk-clock-mode');
+                try {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch(() => {});
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // --- وظائف الساعة ---
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+
+            let greeting = "طاب يومك";
+            if(h < 12) greeting = "صباح الخير";
+            else if(h < 18) greeting = "نهارك سعيد";
+            else greeting = "مساء الخير";
+            document.getElementById('greeting').textContent = greeting;
+
+            if (!is24Hour) {
+                const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+                h = h % 12;
+                h = h ? h : 12; 
+                document.getElementById('ampm').textContent = ampm;
+                document.getElementById('ampmContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('ampmContainer').classList.add('hidden');
+            }
+
+            document.getElementById('hours').textContent = String(h).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('fullDate').textContent = now.toLocaleDateString('ar-EG', options);
+        }
+
+        function toggleFormat() {
+            is24Hour = !is24Hour;
+            document.getElementById('formatBtn').textContent = is24Hour ? "نظام 24 ساعة" : "نظام 12 ساعة";
+            updateClock();
+        }
+
+        // --- ساعة الإيقاف ---
+        function toggleStopwatch() {
+            if (!swRunning) {
+                swStartTime = Date.now() - swElapsedTime;
+                swInterval = setInterval(updateStopwatch, 10);
+                document.getElementById('swStartBtn').textContent = "إيقاف";
+                document.getElementById('swStartBtn').classList.replace('accent-bg', 'bg-red-500');
+                swRunning = true;
+            } else {
+                clearInterval(swInterval);
+                document.getElementById('swStartBtn').textContent = "استمرار";
+                document.getElementById('swStartBtn').classList.replace('bg-red-500', 'accent-bg');
+                swRunning = false;
+            }
+        }
+
+        function updateStopwatch() {
+            swElapsedTime = Date.now() - swStartTime;
+            let diffInHrs = swElapsedTime / 3600000;
+            let hh = Math.floor(diffInHrs);
+            let diffInMin = (diffInHrs - hh) * 60;
+            let mm = Math.floor(diffInMin);
+            let diffInSec = (diffInMin - mm) * 60;
+            let ss = Math.floor(diffInSec);
+            let diffInMs = (diffInSec - ss) * 100;
+            let ms = Math.floor(diffInMs);
+
+            document.getElementById('swDisplay').innerHTML = 
+                String(hh).padStart(2, '0') + ":" + 
+                String(mm).padStart(2, '0') + ":" + 
+                String(ss).padStart(2, '0') + "." + 
+                `<small class="text-3xl opacity-40">${String(ms).padStart(2, '0')}</small>`;
+        }
+
+        function resetStopwatch() {
+            clearInterval(swInterval);
+            swElapsedTime = 0;
+            swRunning = false;
+            document.getElementById('swDisplay').innerHTML = '00:00:00.<small class="text-3xl opacity-40">00</small>';
+            document.getElementById('swStartBtn').textContent = "بدء";
+            document.getElementById('swStartBtn').className = "accent-bg hover:opacity-90 text-white px-10 py-4 rounded-full font-bold transition-all shadow-lg shadow-blue-500/20";
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            document.getElementById('clockView').classList.toggle('hidden', tab !== 'clock');
+            document.getElementById('stopwatchView').classList.toggle('hidden', tab !== 'stopwatch');
+            document.getElementById('clockTab').classList.toggle('active', tab === 'clock');
+            document.getElementById('clockTab').classList.toggle('text-gray-500', tab !== 'clock');
+            document.getElementById('stopwatchTab').classList.toggle('active', tab === 'stopwatch');
+            document.getElementById('stopwatchTab').classList.toggle('text-gray-500', tab !== 'stopwatch');
+        }
+
+        function setTheme(color) {
+            document.documentElement.style.setProperty('--accent-color', color);
+            document.documentElement.style.setProperty('--accent-glow', color + '80');
+        }
+
+        // تشغيل الساعة فوراً
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
